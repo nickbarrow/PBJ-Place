@@ -1,60 +1,35 @@
 import React from 'react'
 import Link from 'next/link'
+import {
+  useAuthUser,
+  withAuthUser,
+  withAuthUserTokenSSR
+} from 'next-firebase-auth'
 
-const nfaDependencyVersion = require('../package.json').dependencies['next-firebase-auth']
-const nextDependencyVersion = require('../package.json').dependencies.next
-const firebaseDependencyVersion = require('../package.json').dependencies.firebase
-
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    padding: 16,
-  },
-  versionsContainer: {
-    marginLeft: 0,
-    marginRight: 'auto',
-  },
-  button: {
-    marginLeft: 16,
-    cursor: 'pointer',
-  },
+const Header = (hideAuth = false) => {
+  const AuthUser = useAuthUser()
+  return (
+    <div className="Header">
+      <Link href="/feed">
+        <div className="brand">
+          <span className="bread">P</span>
+          <span className="pbj">B</span>
+          <span className="bread">J</span>
+        </div>
+      </Link>
+      {hideAuth ? null : (
+        <>
+          {AuthUser.displayName ? (
+            <h2 className="hover-hidden-text" onClick={() => { AuthUser.signOut() }}>
+              <span className="hidden-text">logout</span>
+              {displayName}.</h2>
+          ) : (
+            <h2>Guest.</h2>
+          )}
+        </>
+      )}
+    </div>
+  )
 }
 
-const Header = ({ email, signOut }) => (
-  <div style={styles.container}>
-    <div style={styles.versionsContainer}>
-      <div>v{nfaDependencyVersion}</div>
-      <div>Next.js v{nextDependencyVersion}</div>
-      <div>Firebase v{firebaseDependencyVersion}</div>
-    </div>
-    {email ? (
-      <>
-        <p>Signed in as {email}</p>
-        <button
-          type="button"
-          onClick={() => {
-            signOut()
-          }}
-          style={styles.button}
-        >
-          Sign out
-        </button>
-      </>
-    ) : (
-      <>
-        <p>You are not signed in.</p>
-        <Link href="/auth">
-          <a>
-            <button type="button" style={styles.button}>
-              Sign in
-            </button>
-          </a>
-        </Link>
-      </>
-    )}
-  </div>
-)
-
-export default Header
+export default withAuthUser()(Header)
